@@ -1,0 +1,288 @@
+{
+  "name": "Workflow 5 - Drive Reconciliation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "7f618980-6cb0-47bc-91ab-5c90d0857d6e",
+      "name": "Reconciliation Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cnuaerhekpgvsjvrujtw.supabase.co/rest/v1/rpc/get_active_file_ids",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNudWFlcmhla3BndnNqdnJ1anR3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTkzNTQyMiwiZXhwIjoyMTAxNTExNDIyfQ.YPZmGYqsAusUflR-sEuFoSjecQg_WOP_YsOaAyeVHFI"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNudWFlcmhla3BndnNqdnJ1anR3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTkzNTQyMiwiZXhwIjoyMTAxNTExNDIyfQ.YPZmGYqsAusUflR-sEuFoSjecQg_WOP_YsOaAyeVHFI"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}",
+        "options": {}
+      },
+      "id": "02b01335-88cd-45b0-97bc-c47478917ef5",
+      "name": "Get Active File IDs from Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "z59ZMgKqjKAtQd7I",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "trashed = false",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1n8HZd673ry_3qDFP6sVCHlRjqAvNdqnl",
+            "mode": "id"
+          },
+          "whatToSearch": "files"
+        },
+        "options": {
+          "fields": [
+            "id",
+            "name",
+            "mimeType",
+            "trashed"
+          ]
+        }
+      },
+      "id": "23f7023b-c505-4bb1-91da-1d657cd4512d",
+      "name": "List Current Drive Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        0,
+        192
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UpQfqywQdLNbljAd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "file_id",
+              "field2": "id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d7d2f998-90f9-4586-b386-42fdc7094b03",
+      "name": "Find Orphaned File IDs",
+      "type": "n8n-nodes-base.compareDatasets",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cnuaerhekpgvsjvrujtw.supabase.co/rest/v1/rpc/soft_delete_by_file_id",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNudWFlcmhla3BndnNqdnJ1anR3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTkzNTQyMiwiZXhwIjoyMTAxNTExNDIyfQ.YPZmGYqsAusUflR-sEuFoSjecQg_WOP_YsOaAyeVHFI"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNudWFlcmhla3BndnNqdnJ1anR3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTkzNTQyMiwiZXhwIjoyMTAxNTExNDIyfQ.YPZmGYqsAusUflR-sEuFoSjecQg_WOP_YsOaAyeVHFI"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"target_file_id\": \"{{ $json.file_id }}\" }",
+        "options": {}
+      },
+      "id": "6934ab34-2380-484b-a634-e7de351af518",
+      "name": "Soft Delete Orphaned Files",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        544,
+        96
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "z59ZMgKqjKAtQd7I",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "system_events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "event_type",
+              "fieldValue": "reconciled_delete"
+            },
+            {
+              "fieldId": "detail",
+              "fieldValue": "={{ $('Find Orphaned File IDs').item.json.file_id }}"
+            }
+          ]
+        }
+      },
+      "id": "1cd84e76-1674-4f95-8e2f-520a24ae5ce7",
+      "name": "Log Reconciled Delete",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        768,
+        96
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "z59ZMgKqjKAtQd7I",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Reconciliation Schedule": {
+      "main": [
+        [
+          {
+            "node": "Get Active File IDs from Supabase",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List Current Drive Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active File IDs from Supabase": {
+      "main": [
+        [
+          {
+            "node": "Find Orphaned File IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Current Drive Files": {
+      "main": [
+        [
+          {
+            "node": "Find Orphaned File IDs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Find Orphaned File IDs": {
+      "main": [
+        [
+          {
+            "node": "Soft Delete Orphaned Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Soft Delete Orphaned Files": {
+      "main": [
+        [
+          {
+            "node": "Log Reconciled Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "wFYqBbsBDEqTLFSW",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "a6d5a4ca-2a23-4307-9df6-cb8e8b6f2d2f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "67b1112c3e66214f7e95c92655cd5fcb8a9fdd680d1a05ade53d25f858ea8372"
+  },
+  "nodeGroups": [],
+  "id": "UGiQm5d40k8eGgYp",
+  "tags": []
+}

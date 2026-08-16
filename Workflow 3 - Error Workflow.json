@@ -1,0 +1,110 @@
+{
+  "name": "Workflow 3 - Error Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "d1779ddf-68b8-407f-9712-b7c56d722edb",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "system_events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "event_type",
+              "fieldValue": "workflow_error"
+            },
+            {
+              "fieldId": "detail",
+              "fieldValue": "={{ 'Workflow: ' + ($json.workflow?.name || $json.execution?.workflowName || 'unknown') + ' | Error: ' + ($json.execution?.error?.message || $json.error?.message || 'Unknown error') }}"
+            }
+          ]
+        }
+      },
+      "id": "9f7f2140-2fc8-4bec-bbd6-64f0dbf88616",
+      "name": "Log Workflow Error",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        288,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "z59ZMgKqjKAtQd7I",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "5402528372",
+        "text": "={{ 'n8n workflow error\\nWorkflow: ' + ($json.workflow?.name || $json.execution?.workflowName || 'unknown') + '\\nError: ' + ($json.execution?.error?.message || $json.error?.message || 'Unknown error') }}",
+        "additionalFields": {}
+      },
+      "id": "ad22a149-c813-4810-9ff9-d42916094238",
+      "name": "Alert Operator",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        0
+      ],
+      "webhookId": "f0128bfd-c119-4684-a652-addbac552d06",
+      "credentials": {
+        "telegramApi": {
+          "id": "GSGnwY04pZjatiEJ",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Log Workflow Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Workflow Error": {
+      "main": [
+        [
+          {
+            "node": "Alert Operator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "b7768e12-8808-4a08-ab10-40a103cb9ce7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "67b1112c3e66214f7e95c92655cd5fcb8a9fdd680d1a05ade53d25f858ea8372"
+  },
+  "nodeGroups": [],
+  "id": "wFYqBbsBDEqTLFSW",
+  "tags": []
+}
